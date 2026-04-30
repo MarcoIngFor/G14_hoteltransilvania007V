@@ -48,8 +48,6 @@ public class ReservaService {
             throw new RuntimeException("La habitación no está disponible");
         }
 
-        Reserva reservaGuardada = reservaRepository.save(reserva);
-
         habitacion.setDisponible(false);
 
         restClient.put()
@@ -57,9 +55,11 @@ public class ReservaService {
                 .body(habitacion)
                 .retrieve()
                 .body(HabitacionDTO.class);
+        
+        Reserva reservaGuardada = reservaRepository.save(reserva);
 
         return reservaGuardada;
-}
+    }
 
     public Reserva obtenerPorId(Long id) {
         return reservaRepository.findById(id).orElse(null);
