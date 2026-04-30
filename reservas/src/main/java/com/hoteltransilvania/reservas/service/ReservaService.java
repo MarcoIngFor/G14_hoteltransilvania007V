@@ -1,5 +1,8 @@
 package com.hoteltransilvania.reservas.service;
 
+import com.hoteltransilvania.reservas.dto.ClienteDTO;
+import com.hoteltransilvania.reservas.dto.HabitacionDTO;
+import org.springframework.web.client.RestClient;
 import com.hoteltransilvania.reservas.entity.Reserva;
 import com.hoteltransilvania.reservas.repository.ReservaRepository;
 import org.springframework.stereotype.Service;
@@ -10,9 +13,11 @@ import java.util.List;
 public class ReservaService {
 
     private final ReservaRepository reservaRepository;
+    private final RestClient restClient;
 
-    public ReservaService(ReservaRepository reservaRepository) {
+    public ReservaService(ReservaRepository reservaRepository, RestClient restClient) {
         this.reservaRepository = reservaRepository;
+        this.restClient = restClient;
     }
 
     public List<Reserva> listar() {
@@ -20,8 +25,41 @@ public class ReservaService {
     }
 
     public Reserva guardar(Reserva reserva) {
-        return reservaRepository.save(reserva);
-    }
+
+        ClienteDTO cliente = restClient.get()
+                .uri("http://localhost:8080/clientes/{id}", reserva.getClienteId())
+                .retrieve()
+                .body(ClienteDTO.class);
+
+        if (cliente == null) {
+            throw new RuntimeException("El cliente no existe");
+        }
+
+        HabitacionDTO habitacion = restClient.get()
+                .uri("http://localhost:8082/habitaciones/{id}", reserva.getHabitacionId())
+                .retrieve()
+                .body(HabitacionDTO.class);
+
+        if (habitacion == null) {
+            throw new RuntimeException("La habitación no existe");
+        }
+
+        if (!habitacion.isDisponible()) {
+            throw new RuntimeException("La habitación no está disponible");
+        }
+
+        Reserva reservaGuardada = reservaRepository.save(reserva);
+
+        habitacion.setDisponible(false);
+
+        restClient.put()
+                .uri("http://localhost:8082/habitaciones/{id}", habitacion.getId())
+                .body(habitacion)
+                .retrieve()
+                .body(HabitacionDTO.class);
+
+        return reservaGuardada;
+}
 
     public Reserva obtenerPorId(Long id) {
         return reservaRepository.findById(id).orElse(null);
