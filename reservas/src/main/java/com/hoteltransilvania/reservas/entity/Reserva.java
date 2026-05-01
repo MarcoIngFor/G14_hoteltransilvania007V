@@ -1,6 +1,7 @@
 package com.hoteltransilvania.reservas.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,8 +19,10 @@ public class Reserva {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Positive(message = "El ID de Cliente debe ser mayor a 0")
     private Long clienteId;
 
+    @Positive(message = "El ID de Habitacion debe ser mayor a 0")
     private Long habitacionId;
 
     private LocalDate fechaEntrada;

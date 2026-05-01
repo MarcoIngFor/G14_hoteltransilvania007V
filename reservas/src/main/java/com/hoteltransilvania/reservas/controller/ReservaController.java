@@ -2,6 +2,9 @@ package com.hoteltransilvania.reservas.controller;
 
 import com.hoteltransilvania.reservas.entity.Reserva;
 import com.hoteltransilvania.reservas.service.ReservaService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +25,7 @@ public class ReservaController {
     }
 
     @PostMapping
-    public Reserva guardar(@RequestBody Reserva reserva) {
+    public Reserva guardar(@Valid @RequestBody Reserva reserva) {
         return reservaService.guardar(reserva);
     }
 

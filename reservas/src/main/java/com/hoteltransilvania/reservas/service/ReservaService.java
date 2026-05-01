@@ -29,6 +29,9 @@ public class ReservaService {
         if(reserva.getClienteId()<=0){
             throw new RuntimeException("ID de cliente Inválido: "+reserva.getClienteId());
         }
+        if(reserva.getHabitacionId()<=0){
+            throw new RuntimeException("ID de habitacion Inválida: "+reserva.getHabitacionId());
+        }
 
         ClienteDTO cliente = restClient.get()
                 .uri("http://localhost:8080/clientes/{id}", reserva.getClienteId())
@@ -38,8 +41,6 @@ public class ReservaService {
         if (cliente == null) {
             throw new RuntimeException("El cliente no existe");
         }
-
-
 
         HabitacionDTO habitacion = restClient.get()
                 .uri("http://localhost:8082/habitaciones/{id}", reserva.getHabitacionId())
