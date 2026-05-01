@@ -1,8 +1,8 @@
 package com.hoteltransilvania.habitacionesservice.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,7 +24,7 @@ public class Habitacion {
     @NotBlank(message = "El tipo de habitación no puede estar vacío")
     private String tipo;
 
-    @Min(value = 1, message = "El precio debe ser mayor a 0")
+    @Positive(message = "El precio debe ser mayor a 0")
     private double precioPorNoche;
 
     private boolean disponible;

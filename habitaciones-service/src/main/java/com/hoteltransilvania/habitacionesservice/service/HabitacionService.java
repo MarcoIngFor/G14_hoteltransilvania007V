@@ -24,19 +24,20 @@ public class HabitacionService {
     }
 
     public Habitacion obtenerPorId(Long id) {
-        return habitacionRepository.findById(id).orElse(null);
+        return habitacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Habitación no encontrada con ID: " + id));
     }
 
     public void eliminar(Long id) {
-        habitacionRepository.deleteById(id);
+        Habitacion existente = habitacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Habitación no encontrada con ID: " + id));
+
+        habitacionRepository.delete(existente);
     }
 
     public Habitacion actualizar(Long id, Habitacion habitacion) {
-        Habitacion existente = habitacionRepository.findById(id).orElse(null);
-
-        if (existente == null) {
-            return null;
-        }
+        Habitacion existente = habitacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Habitación no encontrada con ID: " + id));
 
         existente.setNumero(habitacion.getNumero());
         existente.setTipo(habitacion.getTipo());

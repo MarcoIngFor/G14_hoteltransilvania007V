@@ -6,6 +6,8 @@ import com.hoteltransilvania.clientesservice.entity.Cliente;
 // Importamos el service (la lógica)
 import com.hoteltransilvania.clientesservice.service.ClienteService;
 
+import jakarta.validation.Valid;
+
 // Importaciones para REST
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +34,7 @@ public class ClienteController {
 
     @PostMapping
     // Método POST → guardar cliente
-    public Cliente guardar(@RequestBody Cliente cliente) {
+    public Cliente guardar(@Valid @RequestBody Cliente cliente) {
         return clienteService.guardarCliente(cliente);
     }
 

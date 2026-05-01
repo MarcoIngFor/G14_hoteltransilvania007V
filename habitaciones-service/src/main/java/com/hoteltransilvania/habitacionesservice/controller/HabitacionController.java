@@ -2,6 +2,9 @@ package com.hoteltransilvania.habitacionesservice.controller;
 
 import com.hoteltransilvania.habitacionesservice.entity.Habitacion;
 import com.hoteltransilvania.habitacionesservice.service.HabitacionService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +25,7 @@ public class HabitacionController {
     }
 
     @PostMapping
-    public Habitacion guardar(@RequestBody Habitacion habitacion) {
+    public Habitacion guardar(@Valid @RequestBody Habitacion habitacion) {
         return habitacionService.guardar(habitacion);
     }
 
