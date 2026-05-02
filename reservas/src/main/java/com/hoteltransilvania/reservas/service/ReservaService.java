@@ -14,6 +14,8 @@ public class ReservaService {
 
     private final ReservaRepository reservaRepository;
     private final RestClient restClient;
+    ClienteDTO cliente;
+    HabitacionDTO habitacion;
 
     public ReservaService(ReservaRepository reservaRepository, RestClient restClient) {
         this.reservaRepository = reservaRepository;
@@ -32,23 +34,23 @@ public class ReservaService {
         if(reserva.getHabitacionId()<=0){
             throw new RuntimeException("ID de habitacion Inválida: "+reserva.getHabitacionId());
         }
-
-        ClienteDTO cliente = restClient.get()
-                .uri("http://localhost:8080/clientes/{id}", reserva.getClienteId())
-                .retrieve()
-                .body(ClienteDTO.class);
-
-        if (cliente == null) {
-            throw new RuntimeException("El cliente no existe");
+        try{    
+            cliente = restClient.get()
+                    .uri("http://clientes-service:8080/clientes/{id}", reserva.getClienteId())
+                    .retrieve()
+                    .body(ClienteDTO.class);
+        }catch(Exception e){
+            throw new RuntimeException("El cliente no existe con ID: " + reserva.getClienteId());
         }
 
-        HabitacionDTO habitacion = restClient.get()
-                .uri("http://localhost:8081/habitaciones/{id}", reserva.getHabitacionId())
-                .retrieve()
-                .body(HabitacionDTO.class);
+        try {
+            habitacion = restClient.get()
+                    .uri("http://habitaciones-service:8081/habitaciones/{id}", reserva.getHabitacionId())
+                    .retrieve()
+                    .body(HabitacionDTO.class);
 
-        if (habitacion == null) {
-            throw new RuntimeException("La habitación no existe");
+        } catch (Exception e) {
+            throw new RuntimeException("La habitación no existe con ID: " + reserva.getHabitacionId());
         }
 
         if (!habitacion.isDisponible()) {
@@ -58,7 +60,7 @@ public class ReservaService {
         habitacion.setDisponible(false);
 
         restClient.put()
-                .uri("http://localhost:8081/habitaciones/{id}", habitacion.getId())
+                .uri("http://habitaciones-service:8081/habitaciones/{id}", habitacion.getId())
                 .body(habitacion)
                 .retrieve()
                 .body(HabitacionDTO.class);
