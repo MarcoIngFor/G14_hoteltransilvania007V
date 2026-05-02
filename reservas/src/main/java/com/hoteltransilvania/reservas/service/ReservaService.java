@@ -43,7 +43,7 @@ public class ReservaService {
         }
 
         HabitacionDTO habitacion = restClient.get()
-                .uri("http://localhost:8082/habitaciones/{id}", reserva.getHabitacionId())
+                .uri("http://localhost:8081/habitaciones/{id}", reserva.getHabitacionId())
                 .retrieve()
                 .body(HabitacionDTO.class);
 
@@ -58,7 +58,7 @@ public class ReservaService {
         habitacion.setDisponible(false);
 
         restClient.put()
-                .uri("http://localhost:8082/habitaciones/{id}", habitacion.getId())
+                .uri("http://localhost:8081/habitaciones/{id}", habitacion.getId())
                 .body(habitacion)
                 .retrieve()
                 .body(HabitacionDTO.class);

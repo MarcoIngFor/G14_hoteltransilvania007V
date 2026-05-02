@@ -28,3 +28,47 @@ services:
       MYSQL_DATABASE: reservas_db
     ports:
       - "3309:3306"
+
+  clientes-service:
+    build:
+      context: ./clientes-service
+    container_name: registro-clientes
+    restart: always
+    depends_on:
+      - mysql-clientes
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-clientes:3306/clientes_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1234
+
+  habitaciones-service:
+    build:
+      context: ./habitaciones-service
+    container_name: registro-habitaciones
+    restart: always
+    depends_on:
+      - mysql-habitaciones
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-habitaciones:3306/habitaciones_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1234
+
+  reservas:
+    build:
+      context: ./reservas
+    container_name: registro-reservas
+    restart: always
+    depends_on:
+      - clientes-service
+      - habitaciones-service
+      - mysql-reservas
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-reservas:3306/reservas_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1234
