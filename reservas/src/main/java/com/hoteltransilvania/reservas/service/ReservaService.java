@@ -5,6 +5,8 @@ import com.hoteltransilvania.reservas.dto.HabitacionDTO;
 import org.springframework.web.client.RestClient;
 import com.hoteltransilvania.reservas.entity.Reserva;
 import com.hoteltransilvania.reservas.repository.ReservaRepository;
+import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +16,13 @@ public class ReservaService {
 
     private final ReservaRepository reservaRepository;
     private final RestClient restClient;
+
+    @Value("${clientes-service.url}")
+    private String clientesServiceUrl;
+
+    @Value("${habitaciones-service.url}")
+    private String habitacionesServiceUrl;
+
     ClienteDTO cliente;
     HabitacionDTO habitacion;
 
@@ -34,18 +43,18 @@ public class ReservaService {
         if(reserva.getHabitacionId()<=0){
             throw new RuntimeException("ID de habitacion Inválida: "+reserva.getHabitacionId());
         }
-        try{    
+        try {    
             cliente = restClient.get()
-                    .uri("http://clientes-service:8080/clientes/{id}", reserva.getClienteId())
+                    .uri(clientesServiceUrl + "/clientes/{id}", reserva.getClienteId())
                     .retrieve()
                     .body(ClienteDTO.class);
-        }catch(Exception e){
+        } catch(Exception e) {
             throw new RuntimeException("El cliente no existe con ID: " + reserva.getClienteId());
         }
 
         try {
             habitacion = restClient.get()
-                    .uri("http://habitaciones-service:8081/habitaciones/{id}", reserva.getHabitacionId())
+                    .uri(habitacionesServiceUrl + "/habitaciones/{id}", reserva.getHabitacionId())
                     .retrieve()
                     .body(HabitacionDTO.class);
 
@@ -60,7 +69,7 @@ public class ReservaService {
         habitacion.setDisponible(false);
 
         restClient.put()
-                .uri("http://habitaciones-service:8081/habitaciones/{id}", habitacion.getId())
+                .uri(habitacionesServiceUrl + "/habitaciones/{id}", habitacion.getId())
                 .body(habitacion)
                 .retrieve()
                 .body(HabitacionDTO.class);
