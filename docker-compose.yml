@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+
+  mysql-clientes:
+    image: mysql:8
+    container_name: mysql-clientes
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: clientes_db
+    profiles: ["db"]
+    ports:
+      - "3307:3306"
+
+  mysql-habitaciones:
+    image: mysql:8
+    container_name: mysql-habitaciones
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: habitaciones_db
+    profiles: ["db"]
+    ports:
+      - "3308:3306"
+
+  mysql-reservas:
+    image: mysql:8
+    container_name: mysql-reservas
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: reservas_db
+    profiles: ["db"]
+    ports:
+      - "3309:3306"
+  mysql-usuarios:
+    image: mysql:8
+    container_name: mysql-usuarios
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: usuarios_db
+    profiles: ["db"]
+    ports:
+      - "3311:3306"
+  
+  mysql-servicios:
+    image: mysql:8
+    container_name: mysql-servicios
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: servicios_db
+    profiles: ["db"]
+    ports:
+      - "3310:3306"
+
+  clientes-service:
+    build:
+      context: ./clientes-service
+    container_name: registro-clientes
+    restart: always
+    depends_on:
+      - mysql-clientes
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    profiles: ["app"]
+
+  habitaciones-service:
+    build:
+      context: ./habitaciones-service
+    container_name: registro-habitaciones
+    restart: always
+    depends_on:
+      - mysql-habitaciones
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    profiles: ["app"]
+
+  reservas:
+    build:
+      context: ./reservas
+    container_name: registro-reservas
+    restart: always
+    depends_on:
+      - clientes-service
+      - habitaciones-service
+      - mysql-reservas
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    profiles: ["app"]
+
+  servicioextra-service:
+    build:
+      context: ./servicioextra
+    container_name: registro-servicios
+    restart: always
+    depends_on:
+      - mysql-servicios
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    profiles: ["app"]
+  usuarios-service:
+    build:
+      context: ./usuarios
+    container_name: registro-usuarios
+    restart: always
+    depends_on:
+      - mysql-usuarios
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    profiles: ["app"]
+  login-service:
+    build:
+      context: ./login
+    container_name: registro-login
+    restart: always
+    depends_on:
+      - usuarios-service
+    ports:
+      - "8091:8091"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    profiles: ["app"]
