@@ -22,24 +22,32 @@ public class LoginService {
 
     public LoginResponse login(LoginRequest request) {
 
-        UsuarioResponse usuario = restClient.get()
-                .uri(usuariosServiceUrl + "/usuarios")
-                .retrieve()
-                .body(UsuarioResponse[].class)[0];
+    UsuarioResponse[] usuarios = restClient.get()
+            .uri(usuariosServiceUrl + "/usuarios")
+            .retrieve()
+            .body(UsuarioResponse[].class);
 
-        if (!usuario.getUsername().equals(request.getUsername())) {
-            throw new RuntimeException("Usuario incorrecto");
+    UsuarioResponse usuarioEncontrado = null;
+
+    for (UsuarioResponse usuario : usuarios) {
+        if (usuario.getUsername().equals(request.getUsername())) {
+            usuarioEncontrado = usuario;
+            break;
         }
-
-        if (!usuario.getPassword().equals(request.getPassword())) {
-            throw new RuntimeException("Contraseña incorrecta");
-        }
-
-        return new LoginResponse(
-                usuario.getId(),
-                usuario.getUsername(),
-                usuario.getRolId(),
-                "Login exitoso"
-        );
     }
-}
+
+    if (usuarioEncontrado == null) {
+        throw new RuntimeException("Usuario incorrecto");
+    }
+
+    if (!usuarioEncontrado.getPassword().equals(request.getPassword())) {
+        throw new RuntimeException("Contraseña incorrecta");
+    }
+
+    return new LoginResponse(
+            usuarioEncontrado.getId(),
+            usuarioEncontrado.getUsername(),
+            usuarioEncontrado.getRolId(),
+            "Login exitoso"
+    );
+}}

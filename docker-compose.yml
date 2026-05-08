@@ -55,6 +55,17 @@ services:
     profiles: ["db"]
     ports:
       - "3310:3306"
+  mysql-roles:
+      image: mysql:8
+      container_name: mysql-roles
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: 1234
+        MYSQL_DATABASE: roles_db
+      profiles: ["db"]
+      ports:
+        - "3312:3306"
+
 
   clientes-service:
     build:
@@ -133,3 +144,15 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
     profiles: ["app"]
+  roles-service:
+      build:
+        context: ./roles
+      container_name: registro-roles
+      restart: always
+      depends_on:
+        - mysql-roles
+      ports:
+        - "8092:8092"
+      environment:
+        SPRING_PROFILES_ACTIVE: docker
+      profiles: ["app"]
