@@ -23,15 +23,14 @@ public class ServicioController {
         return servicioService.listar();
     }
 
+    @GetMapping("/{id}")
+    public Servicio obtenerPorId(@PathVariable Long id) {
+        return servicioService.obtenerPorId(id);
+    }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Servicio guardar(@Valid @RequestBody Servicio servicio) {
         return servicioService.guardar(servicio);
-    }
-
-    @GetMapping("/{id}")
-    public Servicio obtenerPorId(@PathVariable Long id) {
-        return servicioService.obtenerPorId(id);
     }
 
     @PutMapping("/{id}")

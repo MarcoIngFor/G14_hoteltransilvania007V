@@ -25,6 +25,9 @@ public class Reserva {
     @Positive(message = "El ID de Habitacion debe ser mayor a 0")
     private Long habitacionId;
 
+    @Positive(message = "El ID de Servicio debe ser mayor a 0")
+    private Long ServicioId;
+
     private LocalDate fechaEntrada;
 
     private LocalDate fechaSalida;

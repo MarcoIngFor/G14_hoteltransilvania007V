@@ -16,9 +16,10 @@ public class Servicio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El nombre no puede estar vacío")
+    @NotBlank(message = "El nombre del servicio es obligatorio")
     private String nombre;
 
+    @NotBlank(message = "La descripción es obligatoria")
     private String descripcion;
 
     @Min(value = 1, message = "El precio debe ser mayor a 0")

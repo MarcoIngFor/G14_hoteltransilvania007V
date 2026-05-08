@@ -2,6 +2,8 @@ package com.hoteltransilvania.reservas.service;
 
 import com.hoteltransilvania.reservas.dto.ClienteDTO;
 import com.hoteltransilvania.reservas.dto.HabitacionDTO;
+import com.hoteltransilvania.reservas.dto.ServicioDTO;
+
 import org.springframework.web.client.RestClient;
 import com.hoteltransilvania.reservas.entity.Reserva;
 import com.hoteltransilvania.reservas.repository.ReservaRepository;
@@ -23,8 +25,13 @@ public class ReservaService {
     @Value("${habitaciones-service.url}")
     private String habitacionesServiceUrl;
 
+    @Value("${servicioextra-service.url}")
+    private String servicioextraServiceUrl;
+
     ClienteDTO cliente;
     HabitacionDTO habitacion;
+    ServicioDTO servicio;
+    
 
     public ReservaService(ReservaRepository reservaRepository, RestClient restClient) {
         this.reservaRepository = reservaRepository;
@@ -43,6 +50,21 @@ public class ReservaService {
         if(reserva.getHabitacionId()<=0){
             throw new RuntimeException("ID de habitacion Inválida: "+reserva.getHabitacionId());
         }
+        if (reserva.getServicioId() != null) {
+            if(reserva.getServicioId()<=0){
+                throw new RuntimeException("ID de Servicio Inválido: "+reserva.getServicioId());
+            }
+            try {
+            servicio = restClient.get()
+                    .uri(servicioextraServiceUrl + "/servicios/{id}", reserva.getServicioId())
+                    .retrieve()
+                    .body(ServicioDTO.class);
+
+            } catch (Exception e) {
+                throw new RuntimeException("El servicio no existe con ID: " + reserva.getServicioId());
+            }
+        }
+        
         try {    
             cliente = restClient.get()
                     .uri(clientesServiceUrl + "/clientes/{id}", reserva.getClienteId())
