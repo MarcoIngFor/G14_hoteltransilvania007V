@@ -3,11 +3,21 @@ package com.hoteltransilvania.usuarios.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.hoteltransilvania.usuarios.security.JwtFilter;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
+
+    private final JwtFilter jwtFilter;
+
+    public SecurityConfig(JwtFilter jwtFilter) {
+        this.jwtFilter = jwtFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -15,34 +25,33 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
+                // Desactiva CSRF para pruebas con Postman
+                .csrf(csrf -> csrf.disable())
 
-            // Desactivar CSRF
-            .csrf(csrf -> csrf.disable())
+                // Permisos por ruta
+                .authorizeHttpRequests(auth -> auth
 
-            // Configurar permisos
-            .authorizeHttpRequests(auth -> auth
+                        // Login libre
+                        .requestMatchers("/usuarios/login").permitAll()
 
-                    // Permitir login sin autenticación
-                    .requestMatchers(
-                            "/usuarios/login",
-                            "/usuarios/logeados"
-                    ).permitAll()
+                        // Ver logeados libre por ahora
+                        .requestMatchers("/usuarios/logeados").permitAll()
 
-                    // Permitir swagger si usas swagger
-                    .requestMatchers(
-                            "/swagger-ui/**",
-                            "/v3/api-docs/**"
-                    ).permitAll()
+                        // Todo lo demás necesita token
+                        .anyRequest().authenticated()
+                )
 
-                    // Todo lo demás requiere autenticación
-                    .anyRequest().authenticated()
-            )
+                // Desactiva login web
+                .formLogin(form -> form.disable())
 
-            // Desactivar formulario login de Spring
-            .formLogin(form -> form.disable())
+                // Desactiva Basic Auth
+                .httpBasic(httpBasic -> httpBasic.disable())
 
-            // Desactivar basic auth
-            .httpBasic(httpBasic -> httpBasic.disable());
+                // Activa el filtro JWT
+                .addFilterBefore(
+                        jwtFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }

@@ -1,92 +1,109 @@
 package com.hoteltransilvania.usuarios.security;
 
-//import jakarta.servlet.FilterChain;
-//import jakarta.servlet.ServletException;
-//import jakarta.servlet.http.HttpServletRequest;
-//import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-//import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-//import org.springframework.security.core.authority.SimpleGrantedAuthority;
-//import org.springframework.security.core.context.SecurityContextHolder;
-////import org.springframework.stereotype.Component;
-//import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-//import java.io.IOException;
-//import java.util.Collections;
-//import java.util.ArrayList;
-//import java.util.Map;
+import org.springframework.stereotype.Component;
 
-//import org.springframework.security.core.authority.SimpleGrantedAuthority;
-//import java.util.List;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-//@Component
-//public class JwtFilter extends OncePerRequestFilter {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-   // private final JwtUtil jwtUtil;
+@Component
+public class JwtFilter extends OncePerRequestFilter {
 
-   // public JwtFilter(JwtUtil jwtUtil) {
- //       this.jwtUtil = jwtUtil;
- //   ////}
+    private final JwtUtil jwtUtil;
 
-   // @Ove//rride
-    //protected void doFilterInternal(
-    //        HttpServletRequest request,
-    //        HttpServletResponse response,
-    //        FilterChain filterChain
-    //) throws ServletException, IOException {
+    public JwtFilter(
+            JwtUtil jwtUtil
+    ) {
+        this.jwtUtil = jwtUtil;
+    }
 
-    //    String path = request.getServletPath();
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-    //    if (
-    //    path.equals("/usuarios/login")
-        
-//) {
+        // Obtener Authorization Header
+        String authHeader =
+                request.getHeader("Authorization");
 
- //   filterChain.doFilter(request, response);
-  //  return;
-//}
+        // Verificar si existe Bearer Token
+        if (
+                authHeader != null &&
+                authHeader.startsWith("Bearer ")
+        ) {
 
-   //     String authorizationHeader = request.getHeader("Authorization");
+            // Quitar palabra "Bearer "
+            String token =
+                    authHeader.substring(7);
 
-    //    if (authorizationHeader == null ||
-    //            !authorizationHeader.startsWith("Bearer ")) {
+            // Validar token
+            if (jwtUtil.validarToken(token)) {
 
-    //        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    //        response.getWriter().write("Token no enviado o formato incorrecto");
-    //        return;
-    //    }
+                // Obtener username
+                String username =
+                        jwtUtil.extraerUsername(token);
 
-    //    String token = authorizationHeader.substring(7);
+                // Obtener privilegios
+                Object privilegiosObj =
+                        jwtUtil.extraerPrivilegios(token);
 
-     //   if (!jwtUtil.validarToken(token)) {
-       //     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        //    response.getWriter().write("Token inválido o expirado");
-        //    return;
-        //}
+                List<SimpleGrantedAuthority> authorities =
+                        new ArrayList<>();
 
-       // String username = jwtUtil.extraerUsername(token);
-        //Long rolId = jwtUtil.extraerRolId(token);
-        //Object privilegios = jwtUtil.extraerPrivilegios(token);
+                // Convertir privilegios a authorities
+                if (privilegiosObj instanceof List<?> lista) {
 
-        //List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                    for (Object item : lista) {
 
-        //    if (
-        //path.equals("/usuarios/login")
-        //|| (path.equals("/usuarios") && request.getMethod().equalsIgnoreCase("GET"))
-//){
-    //filterChain.doFilter(request, response);
-    //return;
-//}
+                        if (item instanceof Map<?, ?> privilegio) {
 
-        //UsernamePasswordAuthenticationToken authentication =
-        //new UsernamePasswordAuthenticationToken(
-        //        username,
-        //        null,
-         //       authorities
-        //);
+                            Object nombre =
+                                    privilegio.get("nombre");
 
-        //SecurityContextHolder.getContext().setAuthentication(authentication);
+                            if (nombre != null) {
 
-        //filterChain.doFilter(request, response);
-   // }
-//}
+                                authorities.add(
+                                        new SimpleGrantedAuthority(
+                                                nombre.toString()
+                                        )
+                                );
+                            }
+                        }
+                    }
+                }
+
+                // Crear autenticación
+                UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(
+                                username,
+                                null,
+                                authorities
+                        );
+
+                // Guardar autenticación
+                SecurityContextHolder
+                        .getContext()
+                        .setAuthentication(auth);
+            }
+        }
+
+        filterChain.doFilter(
+                request,
+                response
+        );
+    }
+}
