@@ -31,7 +31,7 @@ public class Usuario {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(name = "rol_id", nullable = false)
     private Long rolId;
 
 

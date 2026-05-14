@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.Base64;
+
 @Service
 public class LoginService {
 
@@ -22,32 +24,38 @@ public class LoginService {
 
     public LoginResponse login(LoginRequest request) {
 
-    UsuarioResponse[] usuarios = restClient.get()
-            .uri(usuariosServiceUrl + "/usuarios")
-            .retrieve()
-            .body(UsuarioResponse[].class);
+        String auth = Base64.getEncoder()
+                .encodeToString("admin:1234".getBytes());
 
-    UsuarioResponse usuarioEncontrado = null;
+        UsuarioResponse[] usuarios = restClient.get()
+                .uri(usuariosServiceUrl + "/usuarios")
+                .header("Authorization", "Basic " + auth)
+                .retrieve()
+                .body(UsuarioResponse[].class);
 
-    for (UsuarioResponse usuario : usuarios) {
-        if (usuario.getUsername().equals(request.getUsername())) {
-            usuarioEncontrado = usuario;
-            break;
+        UsuarioResponse usuarioEncontrado = null;
+
+        for (UsuarioResponse usuario : usuarios) {
+
+            if (usuario.getUsername().equals(request.getUsername())) {
+                usuarioEncontrado = usuario;
+                break;
+            }
         }
-    }
 
-    if (usuarioEncontrado == null) {
-        throw new RuntimeException("Usuario incorrecto");
-    }
+        if (usuarioEncontrado == null) {
+            throw new RuntimeException("Usuario incorrecto");
+        }
 
-    if (!usuarioEncontrado.getPassword().equals(request.getPassword())) {
-        throw new RuntimeException("Contraseña incorrecta");
-    }
+        if (!usuarioEncontrado.getPassword().equals(request.getPassword())) {
+            throw new RuntimeException("Contraseña incorrecta");
+        }
 
-    return new LoginResponse(
-            usuarioEncontrado.getId(),
-            usuarioEncontrado.getUsername(),
-            usuarioEncontrado.getRolId(),
-            "Login exitoso"
-    );
-}}
+        return new LoginResponse(
+                usuarioEncontrado.getId(),
+                usuarioEncontrado.getUsername(),
+                usuarioEncontrado.getRolId(),
+                "Login exitoso"
+        );
+    }
+}

@@ -10,5 +10,6 @@ public class LoginResponse {
     private Long id;
     private String username;
     private Long rolId;
+    private String token;
     private String mensaje;
 }
