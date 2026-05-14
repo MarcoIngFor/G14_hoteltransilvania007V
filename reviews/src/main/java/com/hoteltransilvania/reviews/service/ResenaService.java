@@ -1,8 +1,10 @@
 package com.hoteltransilvania.reviews.service;
 
 import com.hoteltransilvania.reviews.entity.Resena;
+import com.hoteltransilvania.reviews.exception.ResourceNotFoundException;
 import com.hoteltransilvania.reviews.repository.ResenaRepository;
 import org.springframework.stereotype.Service;
+import com.hoteltransilvania.reviews.exception.ResourceNotFoundException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,11 +29,8 @@ public class ResenaService {
     public Resena obtenerPorId(Long id) {
 
         return resenaRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Reseña no encontrada"
-                        )
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(
+                    "Reseña no encontrada"));
     }
 
     // GUARDAR
