@@ -1,0 +1,168 @@
+
+GUÍA DE USO DEL PROYECTO HOTEL TRANSILVANIA
+
+1. REQUISITOS PREVIOS
+
+Antes de ejecutar el proyecto es necesario contar con:
+
+- Java 21
+- Maven
+- Docker Desktop
+- VS Code
+- Postman (opcional)
+- Git (opcional)
+
+------------------------------------------------------------
+
+2. ABRIR EL PROYECTO
+
+Abrir Visual Studio Code y cargar la carpeta principal:
+
+hoteltransilvania
+
+------------------------------------------------------------
+
+3. LEVANTAR DOCKER
+
+Abrir Docker Desktop y verificar que se encuentre ejecutándose.
+
+Desde la raíz del proyecto ejecutar:
+
+docker compose up --build
+
+Esto iniciará:
+
+- Eureka Server
+- API Gateway
+- Usuarios
+- Clientes
+- Habitaciones
+- Reservas
+- Consumo
+- Mantenimiento
+- Pagos
+- Notificaciones
+- Servicio Extra
+- Reportes
+- Bases de datos MySQL
+
+------------------------------------------------------------
+
+4. VERIFICAR EUREKA
+
+Abrir el navegador y acceder a:
+
+http://localhost:8761
+
+Verificar que todos los microservicios aparezcan registrados.
+
+------------------------------------------------------------
+
+5. ACCEDER A SWAGGER
+
+Cada microservicio dispone de documentación Swagger.
+
+Ejemplos:
+
+http://localhost:8081/swagger-ui.html
+http://localhost:8082/swagger-ui.html
+http://localhost:8083/swagger-ui.html
+
+La dirección dependerá del puerto configurado para cada servicio.
+
+------------------------------------------------------------
+
+6. CREAR USUARIO
+
+Ingresar al microservicio usuarios y crear un usuario.
+
+Ejemplo:
+
+Rol:
+ADMIN
+
+o
+
+RECEPCIONISTA
+
+------------------------------------------------------------
+
+7. INICIAR SESIÓN
+
+Utilizar el endpoint de login del microservicio usuarios.
+
+Copiar el token JWT obtenido.
+
+------------------------------------------------------------
+
+8. AUTORIZACIÓN
+
+En Swagger presionar el botón:
+
+Authorize
+
+Ingresar:
+
+Bearer TOKEN_GENERADO
+
+A partir de ese momento se podrán utilizar los endpoints protegidos.
+
+------------------------------------------------------------
+
+9. ORDEN RECOMENDADO DE PRUEBA
+
+1. Usuarios
+2. Clientes
+3. Habitaciones
+4. Servicio Extra
+5. Reservas
+6. Consumo
+7. Mantenimiento
+8. Pagos
+9. Notificaciones
+10. Reportes
+
+------------------------------------------------------------
+
+10. EJECUTAR PRUEBAS UNITARIAS
+
+Ingresar al microservicio correspondiente y ejecutar:
+
+.\mvnw.cmd test
+
+Los tests fueron implementados mediante:
+
+- JUnit 5
+- Mockito
+
+------------------------------------------------------------
+
+11. APAGAR EL PROYECTO
+
+Para detener los contenedores ejecutar:
+
+docker compose down
+
+Si se desea eliminar volúmenes:
+
+docker compose down -v
+
+------------------------------------------------------------
+
+12. OBSERVACIONES
+
+El proyecto utiliza:
+
+- Arquitectura de Microservicios.
+- Spring Boot.
+- OpenFeign.
+- Eureka Server.
+- API Gateway.
+- Swagger OpenAPI.
+- JWT.
+- Docker.
+- Docker Compose.
+- JUnit 5.
+- Mockito.
+
+Todos los microservicios son independientes y se comunican mediante API REST.

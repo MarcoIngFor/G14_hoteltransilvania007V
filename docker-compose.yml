@@ -1,0 +1,314 @@
+
+
+services:
+  # =========================
+  # BASES DE DATOS
+  # =========================
+
+  db-clientes:
+    image: mysql:8
+    container_name: mysql-clientes
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: clientes_db
+    ports:
+      - "3307:3306"
+    networks:
+      - hoteltransilvania-net
+
+  db-habitaciones:
+    image: mysql:8
+    container_name: mysql-habitaciones
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: habitaciones_db
+    ports:
+      - "3308:3306"
+    networks:
+      - hoteltransilvania-net
+
+  db-reservas:
+    image: mysql:8
+    container_name: mysql-reservas
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: reservas_db
+    ports:
+      - "3309:3306"
+    networks:
+      - hoteltransilvania-net
+
+  db-servicioextra:
+    image: mysql:8
+    container_name: mysql-servicioextra
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: servicioextra_db
+    ports:
+      - "3310:3306"
+    networks:
+      - hoteltransilvania-net
+
+  db-pagos:
+    image: mysql:8
+    container_name: mysql-pagos
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: pagos_db
+    ports:
+      - "3311:3306"
+    networks:
+      - hoteltransilvania-net
+
+  db-usuarios:
+    image: mysql:8
+    container_name: mysql-usuarios
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: usuarios_db
+    ports:
+      - "3312:3306"
+    networks:
+      - hoteltransilvania-net
+
+  db-mantenimiento:
+    image: mysql:8
+    container_name: mysql-mantenimiento
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: mantenimiento_db
+    ports:
+      - "3313:3306"
+    networks:
+      - hoteltransilvania-net
+
+  db-consumo:
+    image: mysql:8
+    container_name: mysql-consumo
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: consumo_db
+    ports:
+      - "3314:3306"
+    networks:
+      - hoteltransilvania-net
+
+  db-reportes:
+    image: mysql:8
+    container_name: mysql-reportes
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: reportes_db
+    ports:
+      - "3315:3306"
+    networks:
+      - hoteltransilvania-net
+
+  db-notificaciones:
+    image: mysql:8
+    container_name: mysql-notificaciones
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: notificaciones_db
+    ports:
+      - "3316:3306"
+    networks:
+      - hoteltransilvania-net
+
+  # =========================
+  # EUREKA SERVER
+  # =========================
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    restart: always
+    networks:
+      - hoteltransilvania-net
+
+  # =========================
+  # API GATEWAY
+  # =========================
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    restart: always
+    ports:
+      - "8090:8090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - eureka-server
+      - usuarios-service
+      - clientes-service
+      - habitaciones-service
+      - reservas-service
+      - servicioextra-service
+      - consumo-service
+      - mantenimiento-service
+      - pagos-service
+      - reportes-service
+      - notificaciones-service
+    networks:
+      - hoteltransilvania-net
+
+  # =========================
+  # MICROSERVICIOS
+  # =========================
+
+  clientes-service:
+    build: ./clientes
+    container_name: clientes-service
+    depends_on:
+      - db-clientes
+      - eureka-server
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    restart: always
+    networks:
+      - hoteltransilvania-net
+
+  habitaciones-service:
+    build: ./habitaciones
+    container_name: habitaciones-service
+    depends_on:
+      - db-habitaciones
+      - eureka-server
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    restart: always
+    networks:
+      - hoteltransilvania-net
+
+  reservas-service:
+    build: ./reservas
+    container_name: reservas-service
+    depends_on:
+      - db-reservas
+      - clientes-service
+      - habitaciones-service
+      - eureka-server
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    restart: always
+    networks:
+      - hoteltransilvania-net
+
+  servicioextra-service:
+    build: ./servicioextra
+    container_name: servicioextra-service
+    depends_on:
+      - db-servicioextra
+      - eureka-server
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    restart: always
+    networks:
+      - hoteltransilvania-net
+
+  pagos-service:
+    build: ./pagos
+    container_name: pagos-service
+    depends_on:
+      - db-pagos
+      - reservas-service
+      - servicioextra-service
+      - eureka-server
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    restart: always
+    networks:
+      - hoteltransilvania-net
+
+  usuarios-service:
+    build: ./usuarios
+    container_name: usuarios-service
+    depends_on:
+      - db-usuarios
+      - eureka-server
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    restart: always
+    networks:
+      - hoteltransilvania-net
+
+  mantenimiento-service:
+    build: ./mantenimiento
+    container_name: mantenimiento-service
+    depends_on:
+      - db-mantenimiento
+      - eureka-server
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    restart: always
+    networks:
+      - hoteltransilvania-net
+
+  consumo-service:
+    build: ./consumo
+    container_name: consumo-service
+    depends_on:
+      - db-consumo
+      - eureka-server
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    restart: always
+    networks:
+      - hoteltransilvania-net
+
+  reportes-service:
+    build: ./reportes
+    container_name: reportes-service
+    depends_on:
+      - db-reportes
+      - eureka-server
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    restart: always
+    networks:
+      - hoteltransilvania-net
+
+  notificaciones-service:
+    build: ./notificaciones
+    container_name: notificaciones-service
+    depends_on:
+      - db-notificaciones
+      - eureka-server
+    ports:
+      - "8089:8089"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    restart: always
+    networks:
+      - hoteltransilvania-net
+
+# =========================
+# RED
+# =========================
+
+networks:
+  hoteltransilvania-net:
+    driver: bridge
